@@ -1,0 +1,46 @@
+
+> my-app@0.0.0 build
+> tsc -b && vite build
+
+src/context/MockDataContext.tsx(41,44): error TS2739: Type '{ id: string; userId: string; firstName: any; lastName: any; email: any; status: any; trainerId: string | null; paymentStatus: any; phone: any; instalment2Paid: any; nextZoomDate: any; lastInteraction: any; ... 5 more ...; kbisFile: any; }' is missing the following properties from type 'Student': engagementScore, progress
+src/context/MockDataContext.tsx(307,83): error TS2339: Property 'id' does not exist on type 'Notification'.
+src/layouts/AppLayout.tsx(120,34): error TS2339: Property 'read' does not exist on type 'Notification'.
+src/layouts/AppLayout.tsx(302,32): error TS2339: Property 'id' does not exist on type 'Notification'.
+src/layouts/AppLayout.tsx(303,66): error TS2339: Property 'id' does not exist on type 'Notification'.
+src/layouts/AppLayout.tsx(303,76): error TS2339: Property 'link' does not exist on type 'Notification'.
+src/layouts/AppLayout.tsx(308,40): error TS2339: Property 'read' does not exist on type 'Notification'.
+src/layouts/AppLayout.tsx(316,52): error TS2339: Property 'type' does not exist on type 'Notification'.
+src/layouts/AppLayout.tsx(319,81): error TS2339: Property 'read' does not exist on type 'Notification'.
+src/layouts/AppLayout.tsx(323,36): error TS2339: Property 'message' does not exist on type 'Notification'.
+src/layouts/AppLayout.tsx(326,42): error TS2339: Property 'createdAt' does not exist on type 'Notification'.
+src/layouts/AppLayout.tsx(329,29): error TS2339: Property 'read' does not exist on type 'Notification'.
+src/pages/AdminSettings.tsx(386,20): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & StackOwnProps & CommonProps & Omit<any, keyof CommonProps | keyof StackOwnProps>): Element | null', gave the following error.
+    Property 'component' is missing in type '{ children: Element[]; direction: "row"; justifyContent: string; alignItems: string; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
+  Overload 2 of 2, '(props: DefaultComponentProps<StackTypeMap<{}, "div">>): Element | null', gave the following error.
+    Type '{ children: Element[]; direction: "row"; justifyContent: string; alignItems: string; }' is not assignable to type 'IntrinsicAttributes & StackOwnProps & CommonProps & Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, keyof CommonProps | keyof StackOwnProps>'.
+      Property 'justifyContent' does not exist on type 'IntrinsicAttributes & StackOwnProps & CommonProps & Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, keyof CommonProps | keyof StackOwnProps>'.
+src/pages/AdminSettings.tsx(417,20): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & StackOwnProps & CommonProps & Omit<any, keyof CommonProps | keyof StackOwnProps>): Element | null', gave the following error.
+    Property 'component' is missing in type '{ children: Element[]; direction: "row"; alignItems: string; spacing: number; sx: { mb: number; }; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
+  Overload 2 of 2, '(props: DefaultComponentProps<StackTypeMap<{}, "div">>): Element | null', gave the following error.
+    Type '{ children: Element[]; direction: "row"; alignItems: string; spacing: number; sx: { mb: number; }; }' is not assignable to type 'IntrinsicAttributes & StackOwnProps & CommonProps & Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, keyof CommonProps | keyof StackOwnProps>'.
+      Property 'alignItems' does not exist on type 'IntrinsicAttributes & StackOwnProps & CommonProps & Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, keyof CommonProps | keyof StackOwnProps>'.
+src/pages/AdminSettings.tsx(444,20): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & StackOwnProps & CommonProps & Omit<any, keyof CommonProps | keyof StackOwnProps>): Element | null', gave the following error.
+    Property 'component' is missing in type '{ children: Element[]; direction: "row"; alignItems: string; spacing: number; sx: { mb: number; }; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
+  Overload 2 of 2, '(props: DefaultComponentProps<StackTypeMap<{}, "div">>): Element | null', gave the following error.
+    Type '{ children: Element[]; direction: "row"; alignItems: string; spacing: number; sx: { mb: number; }; }' is not assignable to type 'IntrinsicAttributes & StackOwnProps & CommonProps & Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, keyof CommonProps | keyof StackOwnProps>'.
+      Property 'alignItems' does not exist on type 'IntrinsicAttributes & StackOwnProps & CommonProps & Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, keyof CommonProps | keyof StackOwnProps>'.
+src/pages/AdminSettings.tsx(477,20): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & StackOwnProps & CommonProps & Omit<any, keyof CommonProps | keyof StackOwnProps>): Element | null', gave the following error.
+    Property 'component' is missing in type '{ children: Element[]; direction: "row"; spacing: number; alignItems: string; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
+  Overload 2 of 2, '(props: DefaultComponentProps<StackTypeMap<{}, "div">>): Element | null', gave the following error.
+    Type '{ children: Element[]; direction: "row"; spacing: number; alignItems: string; }' is not assignable to type 'IntrinsicAttributes & StackOwnProps & CommonProps & Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, keyof CommonProps | keyof StackOwnProps>'.
+      Property 'alignItems' does not exist on type 'IntrinsicAttributes & StackOwnProps & CommonProps & Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, keyof CommonProps | keyof StackOwnProps>'.
+src/pages/AdminSettings.tsx(494,20): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & StackOwnProps & CommonProps & Omit<any, keyof CommonProps | keyof StackOwnProps>): Element | null', gave the following error.
+    Property 'component' is missing in type '{ children: Element[]; direction: "row"; spacing: number; flexWrap: string; gap: number; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
+  Overload 2 of 2, '(props: DefaultComponentProps<StackTypeMap<{}, "div">>): Element | null', gave the following error.
+    Type '{ children: Element[]; direction: "row"; spacing: number; flexWrap: string; gap: number; }' is not assignable to type 'IntrinsicAttributes & StackOwnProps & CommonProps & Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, keyof CommonProps | keyof StackOwnProps>'.
+      Property 'flexWrap' does not exist on type 'IntrinsicAttributes & StackOwnProps & CommonProps & Omit<DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement>, keyof CommonProps | keyof StackOwnProps>'.
