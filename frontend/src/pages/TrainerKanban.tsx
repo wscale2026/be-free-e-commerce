@@ -177,14 +177,6 @@ function StudentKanbanCard({
             >
                 <CalendarMonth sx={{ fontSize: 18 }} />
             </IconButton>
-            <IconButton
-                size="small"
-                sx={{ color: 'text.secondary' }}
-                onClick={() => onMessageClick(student)}
-                title="Envoyer un message"
-            >
-                <Chat sx={{ fontSize: 18 }} />
-            </IconButton>
           </Box>
         </Box>
       </CardContent>

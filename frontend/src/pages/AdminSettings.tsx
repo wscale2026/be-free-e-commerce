@@ -72,14 +72,14 @@ export default function AdminSettings() {
   });
   
   useEffect(() => {
-    api.get('/settings/').then(res => {
+    api.get('/platform/settings/').then(res => {
       setSettings(prev => ({ ...prev, ...res.data }));
     }).catch(err => console.error("Error loading settings:", err));
   }, []);
 
   const handleUpdateSetting = async (key: string, val: any) => {
     try {
-      await api.patch('/settings/', { [key]: val });
+      await api.patch('/platform/settings/', { [key]: val });
       setSettings(prev => ({ ...prev, [key]: val }));
       
       // If price changed, refresh all students to see the new totalDue

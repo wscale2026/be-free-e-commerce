@@ -153,15 +153,6 @@ export default function StudentsList() {
       sortable: false,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', gap: 0.5 }}>
-          <Tooltip title="Envoyer un message">
-            <IconButton
-                size="small"
-                sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main', bgcolor: alpha(theme.palette.primary.main, 0.08) } }}
-                onClick={() => showSnackbar(`Messagerie avec ${params.row.name}`)}
-            >
-                <Chat sx={{ fontSize: 18 }} />
-            </IconButton>
-          </Tooltip>
           <Tooltip title="Fiche client">
             <IconButton
                 size="small"

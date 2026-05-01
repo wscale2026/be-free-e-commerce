@@ -42,7 +42,6 @@ const getNavItems = (role: UserRole, t: (k: string) => string): NavItem[] => {
       { label: t('nav.clients'), icon: People, path: '/students' },
       { label: t('nav.zoom'), icon: Videocam, path: '/zoom' },
       { label: t('nav.reporting'), icon: BarChart, path: '/reporting' },
-      { label: t('nav.messages'), icon: Chat, path: '/messages' },
     ],
     student: [
       { label: t('nav.dashboard'), icon: AccountTree, path: '/dashboard' },

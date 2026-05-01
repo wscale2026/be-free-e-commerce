@@ -11,7 +11,7 @@ sqlparse==0.5.5
 stripe==15.1.0
 typing_extensions==4.15.0
 urllib3==2.6.3
-psycopg2-binary==2.9.9
+psycopg[binary]>=3.2.2
 dj-database-url==2.1.0
 cloudinary==1.38.0
 django-cloudinary-storage==0.1.2

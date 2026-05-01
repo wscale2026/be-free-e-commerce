@@ -108,7 +108,7 @@ export default function AdminUsers() {
   const [defaultTotalDue, setDefaultTotalDue] = useState(960);
 
   useEffect(() => {
-    api.get('/settings/').then(res => {
+    api.get('/platform/settings/').then(res => {
       if (res.data.default_total_due) {
         const val = Number(res.data.default_total_due);
         setDefaultTotalDue(val);

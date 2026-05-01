@@ -59,7 +59,6 @@ export default function Reporting() {
   const stats = [
     { label: 'Clients actifs', value: trainerStudents.length.toString(), icon: People, color: '#2D5BFF' },
     { label: 'Taux de réussite', value: `${completionRate}%`, icon: TrendingUp, color: '#00BCD4' },
-    { label: 'Messages non lus', value: unreadMessages.toString(), icon: Chat, color: '#9C27B0' },
     { label: 'En retard', value: overdueStudents.toString(), icon: Warning, color: '#FF5252' },
   ];
 
