@@ -124,8 +124,20 @@ export default function Messages() {
   };
 
   const handleSend = () => {
-    if (!newMessage.trim()) return;
-    sendMessage(expandedId!, newMessage);
+    if (!newMessage.trim() || !expandedId) return;
+    const msgToReply = state.messages.find(m => m.id === expandedId);
+    if (!msgToReply || !user?.id) return;
+    
+    const isSentByMe = msgToReply.fromStudentId === user.id;
+    const toId = isSentByMe ? msgToReply.toTrainerId : msgToReply.fromStudentId;
+
+    const replyMsg = {
+        from_student_id: role === 'student' ? user.id : toId,
+        to_trainer_id: role === 'trainer' || role === 'admin' ? user.id : toId,
+        subject: msgToReply.subject.startsWith('Re:') ? msgToReply.subject : `Re: ${msgToReply.subject}`,
+        body: newMessage.trim(),
+    };
+    sendMessage(replyMsg);
     setNewMessage('');
   };
 

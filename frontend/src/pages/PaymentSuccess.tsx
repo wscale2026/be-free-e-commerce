@@ -51,7 +51,7 @@ export default function PaymentSuccess() {
   if (loading) {
     return (
       <Box sx={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'background.default' }}>
-        <Stack spacing={3} alignItems="center">
+        <Stack spacing={3} sx={{ alignItems: 'center' }}>
           <CircularProgress size={60} thickness={4} />
           <Typography variant="h6" sx={{ fontWeight: 600 }}>Confirmation de votre paiement...</Typography>
         </Stack>
