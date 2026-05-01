@@ -97,7 +97,13 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_COOKIE_NAME = "csrftoken"
 CSRF_COOKIE_HTTPONLY = False
 CSRF_USE_SESSIONS = False
-CSRF_COOKIE_SAMESITE = 'Lax'
+# Security & Cookies for Production (Cross-Domain)
+SESSION_COOKIE_SAMESITE = 'None'
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = 'None'
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False # Must be False if frontend needs to read it (though DRF uses header)
 
 CSRF_TRUSTED_ORIGINS = []
 for i in range(256):
@@ -143,7 +149,11 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '*').split(',')
 if os.environ.get('VERCEL_URL'):
     ALLOWED_HOSTS.append(os.environ.get('VERCEL_URL'))
+    ALLOWED_HOSTS.append('.vercel.app') # Trust all Vercel subdomains
 
-CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host != '*']
+CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host != '*' and not host.startswith('.')]
+# Add explicit wildcard for Vercel subdomains
+CSRF_TRUSTED_ORIGINS.append("https://*.vercel.app")
+
 # Keep localhost for dev
-CSRF_TRUSTED_ORIGINS += ["http://localhost:5173", "http://localhost:3000"]
+CSRF_TRUSTED_ORIGINS += ["http://localhost:5173", "http://localhost:3000", "http://localhost:8000"]

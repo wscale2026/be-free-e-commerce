@@ -3,7 +3,7 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/((?!assets/|sw.js|manifest.json|.*\\.).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
