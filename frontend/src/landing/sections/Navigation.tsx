@@ -89,7 +89,7 @@ export default function Navigation() {
           </button>
           <a
             href="/login"
-            className="hidden sm:inline-flex text-sm font-semibold text-brand-dark dark:text-gray-300 hover:text-brand-blue dark:hover:text-brand-blue transition-colors px-4"
+            className="inline-flex text-[13px] sm:text-sm font-semibold text-brand-dark dark:text-gray-300 hover:text-brand-blue dark:hover:text-brand-blue transition-colors px-2 sm:px-4"
           >
             Connexion
           </a>
