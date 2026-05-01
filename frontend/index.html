@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <script>
+      window.onerror = function(message, source, lineno, colno, error) {
+        document.body.innerHTML = "<div style='padding:20px;color:red;font-family:monospace;background:white;z-index:9999;position:relative;'>" +
+          "<h3>Crash Detected</h3>" +
+          "<p>" + message + "</p>" +
+          "<pre>" + (error ? error.stack : '') + "</pre>" +
+          "</div>";
+      };
+      window.addEventListener('unhandledrejection', function(event) {
+        document.body.innerHTML = "<div style='padding:20px;color:red;font-family:monospace;background:white;z-index:9999;position:relative;'>" +
+          "<h3>Unhandled Promise Rejection</h3>" +
+          "<p>" + event.reason + "</p>" +
+          "<pre>" + (event.reason ? event.reason.stack : '') + "</pre>" +
+          "</div>";
+      });
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Be-Free E-commerce</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#1e6ef0" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Be-Free" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
