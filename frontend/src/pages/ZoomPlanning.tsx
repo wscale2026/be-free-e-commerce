@@ -4,7 +4,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
   FormControl, InputLabel, Select, MenuItem, Checkbox, FormControlLabel,
   AvatarGroup, IconButton, Paper, Grid, Badge, Tabs, Tab,
-  CircularProgress
+  CircularProgress, Stack
 } from '@mui/material';
 import { DateCalendar, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -285,8 +285,15 @@ export default function ZoomPlanning() {
                       }}
                       elevation={0}
                     >
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-                        <Box sx={{ display: 'flex', gap: 2 }}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        justifyContent: 'space-between', 
+                        alignItems: { xs: 'flex-start', sm: 'flex-start' }, 
+                        gap: 2,
+                        mb: 2 
+                      }}>
+                        <Box sx={{ display: 'flex', gap: 2, width: '100%' }}>
                             <Box 
                                 sx={{ 
                                     width: 48, 
@@ -296,21 +303,30 @@ export default function ZoomPlanning() {
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    color: 'primary.main'
+                                    color: 'primary.main',
+                                    flexShrink: 0
                                 }}
                             >
                                 <Videocam />
                             </Box>
-                            <Box>
-                                <Typography variant="labelLarge" sx={{ fontSize: '16px', fontWeight: 700, display: 'block' }}>
+                            <Box sx={{ minWidth: 0, flex: 1 }}>
+                                <Typography variant="labelLarge" sx={{ fontSize: '16px', fontWeight: 700, display: 'block', mb: 0.5 }}>
                                     {session.title}
                                 </Typography>
-                                <Typography variant="bodySmall" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+                                <Typography variant="bodySmall" sx={{ color: 'text.secondary', fontWeight: 600, display: 'block' }}>
                                     Heure : {session.time} • {session.isRecurring ? 'Récurrence active' : 'Séance unique'}
                                 </Typography>
                             </Box>
                         </Box>
-                        <Box sx={{ display: 'flex', gap: 1 }}>
+                        <Stack 
+                          direction="row" 
+                          spacing={1} 
+                          sx={{ 
+                            width: { xs: '100%', sm: 'auto' }, 
+                            justifyContent: { xs: 'flex-end', sm: 'flex-end' },
+                            alignItems: 'center'
+                          }}
+                        >
                           <Button
                             size="small"
                             variant="contained"
@@ -318,17 +334,23 @@ export default function ZoomPlanning() {
                             target="_blank"
                             rel="noopener noreferrer"
                             startIcon={<OpenInNew sx={{ fontSize: 16 }} />}
-                            sx={{ borderRadius: '8px', textTransform: 'none' }}
+                            sx={{ borderRadius: '8px', textTransform: 'none', px: 2, height: 36 }}
                           >
                             Rejoindre
                           </Button>
                           {(role === 'trainer' || role === 'admin') && (
-                            <>
+                            <Stack direction="row" spacing={1}>
                                 <IconButton
                                 size="small"
                                 onClick={() => handleEditClick(session)}
                                 disabled={isSubmitting}
-                                sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), color: 'primary.main' }}
+                                sx={{ 
+                                    width: 36, 
+                                    height: 36,
+                                    bgcolor: alpha(theme.palette.primary.main, 0.05), 
+                                    color: 'primary.main',
+                                    borderRadius: '8px'
+                                }}
                                 >
                                 <Edit sx={{ fontSize: 18 }} />
                                 </IconButton>
@@ -336,16 +358,30 @@ export default function ZoomPlanning() {
                                 size="small"
                                 onClick={() => handleDelete(session.id)}
                                 disabled={isSubmitting}
-                                sx={{ bgcolor: alpha(theme.palette.error.main, 0.05), color: 'error.main' }}
+                                sx={{ 
+                                    width: 36, 
+                                    height: 36,
+                                    bgcolor: alpha(theme.palette.error.main, 0.05), 
+                                    color: 'error.main',
+                                    borderRadius: '8px'
+                                }}
                                 >
                                 {isSubmitting ? <CircularProgress size={18} color="inherit" /> : <Delete sx={{ fontSize: 18 }} />}
                                 </IconButton>
-                            </>
+                            </Stack>
                           )}
-                        </Box>
+                        </Stack>
                       </Box>
 
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pt: 2, borderTop: `1px solid ${alpha(theme.palette.divider, 0.5)}` }}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        alignItems: { xs: 'flex-start', sm: 'center' }, 
+                        justifyContent: 'space-between', 
+                        gap: 2,
+                        pt: 2, 
+                        borderTop: `1px solid ${alpha(theme.palette.divider, 0.5)}` 
+                      }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                             <AvatarGroup
                                 max={4}
