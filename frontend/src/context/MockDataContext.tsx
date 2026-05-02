@@ -25,6 +25,7 @@ interface MockDataContextType {
   deleteStudent: (studentId: string) => Promise<void>;
   assignTrainer: (studentId: string, trainerId: string) => Promise<void>;
   addZoom: (session: ZoomSession) => Promise<void>;
+  updateZoom: (sessionId: string, session: ZoomSession) => Promise<void>;
   deleteZoom: (sessionId: string) => Promise<void>;
   sendMessage: (messageData: any) => Promise<void>;
   addMessage: (message: Message) => Promise<void>;
@@ -307,6 +308,21 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
     await refreshData();
   }, [refreshData]);
 
+  const updateZoom = useCallback(async (sessionId: string, session: any) => {
+    const payload = {
+        title: session.title,
+        date: session.date,
+        time: session.time,
+        link: session.link,
+        trainer_id: session.trainerId,
+        student_ids: session.studentIds,
+        is_recurring: session.isRecurring,
+        recurrence_rule: session.recurrenceRule
+    };
+    await api.patch(`/zoom-sessions/${sessionId}/`, payload);
+    await refreshData();
+  }, [refreshData]);
+
   const deleteZoom = useCallback(async (sessionId: string) => {
     await api.delete(`/zoom-sessions/${sessionId}/`);
     await refreshData();
@@ -384,6 +400,7 @@ export function MockDataProvider({ children }: { children: React.ReactNode }) {
         deleteStudent,
         assignTrainer,
         addZoom,
+        updateZoom,
         deleteZoom,
         sendMessage,
         addMessage,

@@ -9,7 +9,7 @@ import { DateCalendar, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { PickerDay } from '@mui/x-date-pickers/PickerDay';
 import {
-  Add, Videocam, Delete, OpenInNew, Repeat,
+  Add, Videocam, Delete, OpenInNew, Repeat, Edit,
 } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import 'dayjs/locale/fr';
@@ -42,12 +42,14 @@ function ServerDay(props: any & { highlightedDays?: string[] }) {
 export default function ZoomPlanning() {
   const { user, role } = useAuth();
   const theme = useTheme();
-  const { state, addZoom, deleteZoom } = useMockData();
+  const { state, addZoom, updateZoom, deleteZoom } = useMockData();
   const { t } = useLanguage();
   const { showSnackbar } = useSnackbar();
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [activeTab, setActiveTab] = useState(0); // 0: Jour, 1: Toutes
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [zoomForm, setZoomForm] = useState({
     title: '',
     date: dayjs().format('YYYY-MM-DD'),
@@ -103,9 +105,16 @@ export default function ZoomPlanning() {
         title: zoomForm.title,
       };
 
-      await addZoom(newSession);
-      showSnackbar(t('zoom.success'), 'success');
+      if (isEditing && editingSessionId) {
+        await updateZoom(editingSessionId, newSession);
+        showSnackbar(t('zoom.updated') || 'Séance mise à jour', 'success');
+      } else {
+        await addZoom(newSession);
+        showSnackbar(t('zoom.success'), 'success');
+      }
       setDialogOpen(false);
+      setIsEditing(false);
+      setEditingSessionId(null);
       setZoomForm({
         title: '',
         date: dayjs().format('YYYY-MM-DD'),
@@ -127,6 +136,22 @@ export default function ZoomPlanning() {
     showSnackbar(t('zoom.deleted'), 'info');
   };
 
+  const handleEditClick = (session: ZoomSession) => {
+    setZoomForm({
+        title: session.title,
+        date: session.date,
+        time: session.time,
+        link: session.link,
+        studentIds: session.studentIds,
+        trainerId: session.trainerId,
+        isRecurring: session.isRecurring,
+        recurrenceRule: session.recurrenceRule || 'Tous les mardis',
+    });
+    setEditingSessionId(session.id);
+    setIsEditing(true);
+    setDialogOpen(true);
+  };
+
   const availableStudents = state.students;
 
   return (
@@ -143,6 +168,8 @@ export default function ZoomPlanning() {
                         startIcon={<Add />}
                         onClick={() => {
                             setZoomForm(prev => ({ ...prev, trainerId: user?.id || '' }));
+                            setIsEditing(false);
+                            setEditingSessionId(null);
                             setDialogOpen(true);
                         }}
                         sx={{ borderRadius: '12px' }}
@@ -282,13 +309,22 @@ export default function ZoomPlanning() {
                             Rejoindre
                           </Button>
                           {(role === 'trainer' || role === 'admin') && (
-                            <IconButton
-                              size="small"
-                              onClick={() => handleDelete(session.id)}
-                              sx={{ bgcolor: alpha(theme.palette.error.main, 0.05), color: 'error.main' }}
-                            >
-                              <Delete sx={{ fontSize: 18 }} />
-                            </IconButton>
+                            <>
+                                <IconButton
+                                size="small"
+                                onClick={() => handleEditClick(session)}
+                                sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), color: 'primary.main' }}
+                                >
+                                <Edit sx={{ fontSize: 18 }} />
+                                </IconButton>
+                                <IconButton
+                                size="small"
+                                onClick={() => handleDelete(session.id)}
+                                sx={{ bgcolor: alpha(theme.palette.error.main, 0.05), color: 'error.main' }}
+                                >
+                                <Delete sx={{ fontSize: 18 }} />
+                                </IconButton>
+                            </>
                           )}
                         </Box>
                       </Box>
@@ -372,7 +408,7 @@ export default function ZoomPlanning() {
           slotProps={{ paper: { sx: { borderRadius: '24px' } } }}
         >
           <DialogTitle sx={{ fontSize: '24px', fontWeight: 700, pt: 4, px: 4 }}>
-            Planifier un Zoom
+            {isEditing ? 'Modifier la séance' : 'Planifier un Zoom'}
           </DialogTitle>
           <DialogContent sx={{ px: 4 }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
@@ -497,7 +533,7 @@ export default function ZoomPlanning() {
               disabled={!zoomForm.title || !zoomForm.link}
               sx={{ px: 4 }}
             >
-              Créer la séance
+              {isEditing ? 'Mettre à jour' : 'Créer la séance'}
             </Button>
           </DialogActions>
         </Dialog>

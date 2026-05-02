@@ -156,19 +156,7 @@ function StudentKanbanCard({
               {student.lastInteraction}
           </Typography>
           <Box sx={{ display: 'flex' }}>
-            {student.status === 'KBIS' && student.paidAmount >= 1000 && !student.kbisFile && (
-                <IconButton 
-                    size="small" 
-                    sx={{ color: 'primary.main' }} 
-                    onClick={() => onUploadKbis(student)}
-                    title="Uploader le KBIS"
-                >
-                    <UploadFile sx={{ fontSize: 18 }} />
-                </IconButton>
-            )}
-            {student.kbisFile && (
-                <CheckCircle sx={{ fontSize: 18, color: 'success.main', alignSelf: 'center', mx: 0.5 }} titleAccess="KBIS Uploadé" />
-            )}
+
             <IconButton 
                 size="small" 
                 sx={{ color: 'text.secondary' }}
