@@ -131,7 +131,7 @@ export default function ZoomPlanning() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fr">
-      <Box sx={{ height: '100%', py: 2 }}>
+      <Box sx={{ py: 2 }}>
         <PageHeader 
             title={t('zoom.title')}
             subtitle={t('zoom.subtitle')}

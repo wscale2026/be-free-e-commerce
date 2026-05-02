@@ -572,8 +572,9 @@ export default function AppLayout({ children, toggleTheme, mode }: AppLayoutProp
           </Toolbar>
         </AppBar>
 
-        <Box component="main" sx={{ flex: 1, overflow: 'auto', pb: 16, pt: '72px', px: 2 }}>
+        <Box component="main" sx={{ flex: 1, overflow: 'auto', pb: 12, pt: '72px', px: 2 }}>
           {children}
+          {isMobile && <Box sx={{ height: 80 }} />}
         </Box>
 
         <Paper
