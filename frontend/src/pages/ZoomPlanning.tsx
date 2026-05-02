@@ -3,7 +3,8 @@ import {
   Box, Card, CardContent, Typography, Button, Chip, Avatar,
   Dialog, DialogTitle, DialogContent, DialogActions, TextField,
   FormControl, InputLabel, Select, MenuItem, Checkbox, FormControlLabel,
-  AvatarGroup, IconButton, Paper, Grid, Badge, Tabs, Tab
+  AvatarGroup, IconButton, Paper, Grid, Badge, Tabs, Tab,
+  CircularProgress
 } from '@mui/material';
 import { DateCalendar, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -16,6 +17,7 @@ import 'dayjs/locale/fr';
 import { alpha, useTheme } from '@mui/material/styles';
 import { useAuth } from '@/context/AuthContext';
 import { useMockData } from '@/context/MockDataContext';
+import { type ZoomSession } from '@/types';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSnackbar } from '@/context/SnackbarContext';
 import { PageHeader } from '@/components/PageHeader';
@@ -48,6 +50,7 @@ export default function ZoomPlanning() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
   const [activeTab, setActiveTab] = useState(0); // 0: Jour, 1: Toutes
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [zoomForm, setZoomForm] = useState({
@@ -93,6 +96,7 @@ export default function ZoomPlanning() {
     }
 
     try {
+      setIsSubmitting(true);
       const newSession = {
         id: `z${Date.now()}`,
         date: zoomForm.date,
@@ -128,12 +132,22 @@ export default function ZoomPlanning() {
     } catch (error) {
       console.error('Error adding zoom:', error);
       showSnackbar(t('common.error'), 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleDelete = (sessionId: string) => {
-    deleteZoom(sessionId);
-    showSnackbar(t('zoom.deleted'), 'info');
+  const handleDelete = async (sessionId: string) => {
+    if (!window.confirm('Supprimer cette séance ?')) return;
+    try {
+        setIsSubmitting(true);
+        await deleteZoom(sessionId);
+        showSnackbar(t('zoom.deleted'), 'info');
+    } catch (e) {
+        showSnackbar(t('common.error'), 'error');
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   const handleEditClick = (session: ZoomSession) => {
@@ -313,6 +327,7 @@ export default function ZoomPlanning() {
                                 <IconButton
                                 size="small"
                                 onClick={() => handleEditClick(session)}
+                                disabled={isSubmitting}
                                 sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), color: 'primary.main' }}
                                 >
                                 <Edit sx={{ fontSize: 18 }} />
@@ -320,9 +335,10 @@ export default function ZoomPlanning() {
                                 <IconButton
                                 size="small"
                                 onClick={() => handleDelete(session.id)}
+                                disabled={isSubmitting}
                                 sx={{ bgcolor: alpha(theme.palette.error.main, 0.05), color: 'error.main' }}
                                 >
-                                <Delete sx={{ fontSize: 18 }} />
+                                {isSubmitting ? <CircularProgress size={18} color="inherit" /> : <Delete sx={{ fontSize: 18 }} />}
                                 </IconButton>
                             </>
                           )}
@@ -530,10 +546,11 @@ export default function ZoomPlanning() {
             <Button
               variant="contained"
               onClick={handleAddZoom}
-              disabled={!zoomForm.title || !zoomForm.link}
+              disabled={isSubmitting || !zoomForm.title || !zoomForm.link}
+              startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
               sx={{ px: 4 }}
             >
-              {isEditing ? 'Mettre à jour' : 'Créer la séance'}
+              {isSubmitting ? 'Traitement...' : (isEditing ? 'Mettre à jour' : 'Créer la séance')}
             </Button>
           </DialogActions>
         </Dialog>

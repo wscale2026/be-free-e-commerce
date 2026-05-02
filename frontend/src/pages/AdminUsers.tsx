@@ -4,7 +4,8 @@ import {
   Box, Card, CardContent, Dialog, DialogTitle, DialogContent,
   DialogActions, TextField, Button, FormControl, InputLabel,
   Select, MenuItem, IconButton, Chip, Drawer, Avatar, Typography,
-  Stack, Tooltip, Grid, InputAdornment, Menu, Divider, Badge, useMediaQuery
+  Stack, Tooltip, Grid, InputAdornment, Menu, Divider, Badge, useMediaQuery,
+  CircularProgress
 } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 import { DataGrid, GridToolbar, type GridColDef } from '@mui/x-data-grid';
@@ -83,6 +84,7 @@ export default function AdminUsers() {
   const [visiblePasswords, setVisiblePasswords] = useState<Set<string>>(new Set());
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [menuActionUser, setMenuActionUser] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const togglePasswordVisibility = (id: string) => {
     const newSet = new Set(visiblePasswords);
@@ -379,6 +381,7 @@ export default function AdminUsers() {
     };
 
     try {
+      setIsSubmitting(true);
       await addStudent(newStudent);
       showSnackbar('Compte client créé avec succès', 'success');
       setDialogOpen(false);
@@ -388,6 +391,8 @@ export default function AdminUsers() {
       const raw = error.response?.data?.message || error.response?.data?.detail || error.response?.data || 'Erreur lors de la création du client';
       const msg = Array.isArray(raw) ? raw.join(' ') : (typeof raw === 'object' ? JSON.stringify(raw) : raw);
       showSnackbar(msg, 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -414,6 +419,7 @@ export default function AdminUsers() {
     };
     
     try {
+        setIsSubmitting(true);
         await updateStudent(updated);
 
         // Auto-generate a payment record if the admin increased the paid balance
@@ -438,17 +444,21 @@ export default function AdminUsers() {
         const msg = Array.isArray(raw) ? raw.join(' ') : raw;
         console.error("Update error:", error.response?.data);
         showSnackbar(msg, 'error');
+    } finally {
+        setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
     try {
+      setIsSubmitting(true);
       await deleteStudent(id);
       showSnackbar('Client supprimé avec succès', 'success');
     } catch (error: any) {
       const msg = error.response?.data?.detail || 'Erreur lors de la suppression';
       showSnackbar(msg, 'error');
     } finally {
+      setIsSubmitting(false);
       setDeleteConfirm(null);
     }
   };
@@ -920,8 +930,14 @@ export default function AdminUsers() {
           </DialogContent>
           <DialogActions sx={{ p: 3, bgcolor: alpha(theme.palette.text.primary, 0.02), borderTop: '1px solid', borderColor: 'divider' }}>
             <Button onClick={() => setDialogOpen(false)} sx={{ color: 'text.secondary', fontWeight: 700, px: 3 }}>Annuler</Button>
-            <Button variant="contained" onClick={handleSubmit} disabled={!form.firstName || !form.lastName || !form.email} sx={{ px: 4, py: 1.2, borderRadius: '12px', fontWeight: 800, textTransform: 'none', fontSize: '15px' }}>
-              Créer le dossier
+            <Button 
+                variant="contained" 
+                onClick={handleSubmit} 
+                disabled={isSubmitting || !form.firstName || !form.lastName || !form.email} 
+                sx={{ px: 4, py: 1.2, borderRadius: '12px', fontWeight: 800, textTransform: 'none', fontSize: '15px' }}
+                startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+            >
+              {isSubmitting ? 'Chargement...' : 'Créer le dossier'}
             </Button>
           </DialogActions>
         </Dialog>
@@ -1107,9 +1123,11 @@ export default function AdminUsers() {
               variant="contained"
               fullWidth
               onClick={handleUpdate}
+              disabled={isSubmitting}
+              startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
               sx={{ py: 2, mt: 4, borderRadius: '14px', fontWeight: 800, fontSize: '16px' }}
             >
-              Enregistrer les modifications
+              {isSubmitting ? 'Enregistrement...' : 'Enregistrer les modifications'}
             </Button>
           </Box>
         </Drawer>
@@ -1160,9 +1178,11 @@ export default function AdminUsers() {
               <Button 
                 fullWidth variant="contained" color="error" 
                 onClick={() => deleteConfirm && handleDelete(deleteConfirm)} 
+                disabled={isSubmitting}
+                startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
                 sx={{ borderRadius: '12px', py: 1, fontWeight: 800, boxShadow: 'none', '&:hover': { bgcolor: 'error.dark' } }}
               >
-                Supprimer
+                {isSubmitting ? 'Suppression...' : 'Supprimer'}
               </Button>
             </DialogActions>
           </Box>

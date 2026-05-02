@@ -4,6 +4,7 @@ import {
   Tooltip, Grid, TextField, Stack, Badge, Dialog,
   DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem,
   InputAdornment, Menu, Divider, useMediaQuery,
+  CircularProgress
 } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 import { 
@@ -32,16 +33,23 @@ export default function AdminTrainers() {
   const [selectedTrainer, setSelectedTrainer] = useState<any>(null);
 
   const [deleteConfirm, setDeleteConfirm] = useState<any>(null);
-  const handleDeleteTrainer = () => {
-    if (deleteConfirm && window.confirm(`Supprimer définitivement le compte de ${deleteConfirm.name} ?`)) {
-      deleteTrainer(deleteConfirm.id);
+  const handleDeleteTrainer = async () => {
+    if (!deleteConfirm) return;
+    try {
+      setIsSubmitting(true);
+      await deleteTrainer(deleteConfirm.id);
       showSnackbar('Compte supprimé avec succès', 'info');
       setDeleteConfirm(null);
+    } catch (e) {
+      showSnackbar('Erreur lors de la suppression', 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const [viewTrainer, setViewTrainer] = useState<any>(null);
   const [editTrainer, setEditTrainer] = useState<any>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [editForm, setEditForm] = useState({
     firstName: '',
     lastName: '',
@@ -60,10 +68,18 @@ export default function AdminTrainers() {
     setMenuAnchor(null);
   };
 
-  const handleEditSave = () => {
-    // In a real app, call an API. Here we use the context.
-    showSnackbar('Modifications enregistrées ✓', 'success');
-    setEditTrainer(null);
+  const handleEditSave = async () => {
+    try {
+      setIsSubmitting(true);
+      // In a real app, call an API. Here we use the context.
+      await updateTrainer(editTrainer.id, editForm);
+      showSnackbar('Modifications enregistrées ✓', 'success');
+      setEditTrainer(null);
+    } catch (e) {
+      showSnackbar('Erreur lors de la modification', 'error');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const [newTrainer, setNewTrainer] = useState({
@@ -140,30 +156,37 @@ export default function AdminTrainers() {
     return rows;
   }, [state.trainers, state.students, searchQuery]);
 
-  const handleAddTrainer = () => {
+  const handleAddTrainer = async () => {
     if (!newTrainer.firstName || !newTrainer.lastName || !newTrainer.email) {
       showSnackbar('Veuillez remplir les informations obligatoires', 'error');
       return;
     }
     
-    const finalSpecialty = isCustomSpecialty ? newTrainer.customSpecialty : newTrainer.specialty;
-    
-    const trainerToAdd = {
-        id: `t${state.trainers.length + 1}`,
-        firstName: newTrainer.firstName,
-        lastName: newTrainer.lastName,
-        email: newTrainer.email,
-        username: newTrainer.username,
-        password: newTrainer.password,
-        specialty: finalSpecialty,
-        assignedStudentIds: []
-    } as any;
+    try {
+        setIsSubmitting(true);
+        const finalSpecialty = isCustomSpecialty ? newTrainer.customSpecialty : newTrainer.specialty;
+        
+        const trainerToAdd = {
+            id: `t${state.trainers.length + 1}`,
+            firstName: newTrainer.firstName,
+            lastName: newTrainer.lastName,
+            email: newTrainer.email,
+            username: newTrainer.username,
+            password: newTrainer.password,
+            specialty: finalSpecialty,
+            assignedStudentIds: []
+        } as any;
 
-    addTrainer(trainerToAdd);
-    showSnackbar(`Compte créé pour ${newTrainer.firstName}`, 'success');
-    setAddDialogOpen(false);
-    setNewTrainer({ firstName: '', lastName: '', email: '', specialty: 'Expert E-commerce', customSpecialty: '', username: '', password: '' });
-    setIsCustomSpecialty(false);
+        await addTrainer(trainerToAdd);
+        showSnackbar(`Compte créé pour ${newTrainer.firstName}`, 'success');
+        setAddDialogOpen(false);
+        setNewTrainer({ firstName: '', lastName: '', email: '', specialty: 'Expert E-commerce', customSpecialty: '', username: '', password: '' });
+        setIsCustomSpecialty(false);
+    } catch (e) {
+        showSnackbar('Erreur lors de la création', 'error');
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   const handleCopyCredentials = (trainer: any) => {
@@ -479,7 +502,16 @@ export default function AdminTrainers() {
         )}
         <DialogActions sx={{ p: 3, pt: 1, gap: 1.5, flexDirection: { xs: 'column-reverse', sm: 'row' } }}>
           <Button fullWidth onClick={() => setEditTrainer(null)} sx={{ color: 'text.secondary', fontWeight: 700, py: 1.2 }}>Annuler</Button>
-          <Button fullWidth variant="contained" onClick={handleEditSave} sx={{ borderRadius: '12px', py: 1.2, fontWeight: 900, boxShadow: 'none' }}>Enregistrer les modifications</Button>
+          <Button 
+            fullWidth 
+            variant="contained" 
+            onClick={handleEditSave} 
+            disabled={isSubmitting}
+            startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+            sx={{ borderRadius: '12px', py: 1.2, fontWeight: 900, boxShadow: 'none' }}
+          >
+            {isSubmitting ? 'Enregistrement...' : 'Enregistrer les modifications'}
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -504,7 +536,15 @@ export default function AdminTrainers() {
           </DialogContent>
           <DialogActions sx={{ justifyContent: 'center', mt: 2, pb: 2, gap: 2 }}>
             <Button fullWidth variant="outlined" onClick={() => setDeleteConfirm(null)} sx={{ borderRadius: '12px', fontWeight: 700, color: 'text.secondary' }}>Annuler</Button>
-            <Button fullWidth variant="contained" color="error" onClick={handleDeleteTrainer} sx={{ borderRadius: '12px', fontWeight: 800 }}>Supprimer</Button>
+            <Button 
+                fullWidth variant="contained" color="error" 
+                onClick={handleDeleteTrainer} 
+                disabled={isSubmitting}
+                startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+                sx={{ borderRadius: '12px', fontWeight: 800 }}
+            >
+                {isSubmitting ? 'Suppression...' : 'Supprimer'}
+            </Button>
           </DialogActions>
         </Box>
       </Dialog>
@@ -593,8 +633,14 @@ export default function AdminTrainers() {
         </DialogContent>
         <DialogActions sx={{ p: 3, bgcolor: alpha(theme.palette.text.primary, 0.02), borderTop: '1px solid', borderColor: 'divider' }}>
             <Button onClick={() => setAddDialogOpen(false)} sx={{ fontWeight: 700, px: 3, color: 'text.secondary' }}>Annuler</Button>
-            <Button variant="contained" onClick={handleAddTrainer} sx={{ borderRadius: '12px', px: 4, py: 1.2, fontWeight: 900, textTransform: 'none', fontSize: '15px' }}>
-                Créer le responsable
+            <Button 
+                variant="contained" 
+                onClick={handleAddTrainer} 
+                disabled={isSubmitting || !newTrainer.firstName || !newTrainer.lastName || !newTrainer.email}
+                startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+                sx={{ borderRadius: '12px', px: 4, py: 1.2, fontWeight: 900, textTransform: 'none', fontSize: '15px' }}
+            >
+                {isSubmitting ? 'Chargement...' : 'Créer le responsable'}
             </Button>
         </DialogActions>
       </Dialog>

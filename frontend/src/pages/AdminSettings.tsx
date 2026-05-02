@@ -6,6 +6,7 @@ import {
   List, ListItem, ListItemText, ListItemIcon, Divider,
   Stack, InputAdornment, Paper, Chip, MenuItem, Select, FormControl, InputLabel,
   Container, Dialog, DialogTitle, DialogContent, DialogActions, useMediaQuery,
+  CircularProgress
 } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 import {
@@ -104,6 +105,7 @@ export default function AdminSettings() {
     username: '',
     password: '',
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadAdmins = async () => {
     try {
@@ -143,6 +145,7 @@ export default function AdminSettings() {
     }
 
     try {
+      setIsSubmitting(true);
       await api.post('/users/', { ...newAdmin, role: 'admin' });
       showSnackbar('Administrateur créé avec succès', 'success');
       setAdminDialogOpen(false);
@@ -152,26 +155,35 @@ export default function AdminSettings() {
       const data = error.response?.data || {};
       const raw = data.message || data.detail || data.username || data.email || "Erreur lors de la création de l'administrateur";
       showSnackbar(Array.isArray(raw) ? raw.join(' ') : raw, 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleToggleAdmin = async (admin: any) => {
     try {
+      setIsSubmitting(true);
       await api.patch(`/users/${admin.id}/`, { is_active: !admin.is_active });
       await loadAdmins();
       showSnackbar('Accès administrateur mis à jour', 'success');
     } catch {
       showSnackbar("Impossible de mettre à jour l'accès", 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDeleteAdmin = async (admin: any) => {
+    if (!window.confirm(`Voulez-vous vraiment supprimer l'accès de ${admin.username} ?`)) return;
     try {
+      setIsSubmitting(true);
       await api.delete(`/users/${admin.id}/`);
       setAdmins(prev => prev.filter(item => item.id !== admin.id));
       showSnackbar('Administrateur supprimé', 'success');
     } catch (error: any) {
       showSnackbar(error.response?.data?.detail || "Impossible de supprimer cet administrateur", 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -743,11 +755,17 @@ export default function AdminSettings() {
                                 <Switch
                                   checked={Boolean(admin.is_active)}
                                   onChange={() => handleToggleAdmin(admin)}
+                                  disabled={isSubmitting}
                                   size="small"
                                   slotProps={{ input: { 'aria-label': 'Activer ou désactiver administrateur' } }}
                                 />
-                                <IconButton color="error" onClick={() => handleDeleteAdmin(admin)} size={isMobile ? 'small' : 'medium'}>
-                                  <Delete />
+                                <IconButton 
+                                    color="error" 
+                                    onClick={() => handleDeleteAdmin(admin)} 
+                                    disabled={isSubmitting}
+                                    size={isMobile ? 'small' : 'medium'}
+                                >
+                                  {isSubmitting ? <CircularProgress size={20} color="inherit" /> : <Delete />}
                                 </IconButton>
                               </Stack>
                             </Stack>
@@ -853,7 +871,15 @@ export default function AdminSettings() {
 		                </DialogContent>
                 <DialogActions sx={{ p: { xs: 2.5, sm: 3 }, pt: 1, flexDirection: { xs: 'column-reverse', sm: 'row' }, gap: { xs: 1, sm: 0 } }}>
                   <Button fullWidth={isMobile} onClick={() => setAdminDialogOpen(false)}>Annuler</Button>
-                  <Button fullWidth={isMobile} variant="contained" onClick={handleCreateAdmin}>Créer l'accès</Button>
+                  <Button 
+                    fullWidth={isMobile} 
+                    variant="contained" 
+                    onClick={handleCreateAdmin}
+                    disabled={isSubmitting || !newAdmin.first_name || !newAdmin.last_name || !newAdmin.email || !newAdmin.username || !newAdmin.password}
+                    startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+                  >
+                    {isSubmitting ? 'Création...' : 'Créer l\'accès'}
+                  </Button>
                 </DialogActions>
               </Dialog>
           </TabPanel>

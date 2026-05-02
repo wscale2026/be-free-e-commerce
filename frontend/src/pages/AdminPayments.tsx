@@ -5,6 +5,7 @@ import {
   TextField, MenuItem, FormControl, InputLabel, Select,
   IconButton, Stack, Avatar, Badge,
   LinearProgress, Menu, ListItemIcon, ListItemText, Divider,
+  CircularProgress
 } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 import { DataGrid, GridToolbar, type GridColDef } from '@mui/x-data-grid';
@@ -194,36 +195,43 @@ export default function AdminPayments() {
   // Edit versement dialog
   const [editRow, setEditRow] = useState<any>(null);
   const [editAmount, setEditAmount] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 
-  const handleAddPayment = () => {
+  const handleAddPayment = async () => {
     if (!formData.studentId || !formData.amount) {
       showSnackbar(t('errors.fillFields'), 'error');
       return;
     }
     const student = state.students.find(s => s.id === formData.studentId);
     if (student) {
-      const newPaid = student.paidAmount + Number(formData.amount);
-      updateStudent({
-        ...student,
-        paidAmount: newPaid,
-        paymentStatus: newPaid >= student.totalDue ? 'OK' : student.paymentStatus,
-        nextDueDate: newPaid >= student.totalDue ? null : student.nextDueDate,
-      });
+      try {
+        setIsSubmitting(true);
+        await updateStudent({
+          ...student,
+          paidAmount: student.paidAmount + Number(formData.amount),
+          paymentStatus: (student.paidAmount + Number(formData.amount)) >= student.totalDue ? 'OK' : student.paymentStatus,
+          nextDueDate: (student.paidAmount + Number(formData.amount)) >= student.totalDue ? null : student.nextDueDate,
+        });
 
-      // Also create a historical payment record
-      addPayment({
-        student_id: student.id,
-        amount: Number(formData.amount),
-        method: 'Virement / Espèces',
-        reference: `Règlement manuel (Admin)`,
-        date: formData.date
-      });
+        // Also create a historical payment record
+        await addPayment({
+          student_id: student.id,
+          amount: Number(formData.amount),
+          method: 'Virement / Espèces',
+          reference: `Règlement manuel (Admin)`,
+          date: formData.date
+        });
 
-      showSnackbar(t('success.paymentSaved'), 'success');
-      setAddPaymentOpen(false);
-      setFormData({ studentId: '', amount: '', date: new Date().toISOString().split('T')[0] });
+        showSnackbar(t('success.paymentSaved'), 'success');
+        setAddPaymentOpen(false);
+        setFormData({ studentId: '', amount: '', date: new Date().toISOString().split('T')[0] });
+      } catch (e) {
+        showSnackbar(t('errors.general'), 'error');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -232,32 +240,40 @@ export default function AdminPayments() {
     setEditAmount(String(row.paid));
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (!editRow) return;
     const student = state.students.find(s => s.id === editRow.id);
     if (!student) return;
-    const oldPaid = student.paidAmount;
-    const newPaid = Number(editAmount);
     
-    updateStudent({
-      ...student,
-      paidAmount: newPaid,
-      paymentStatus: newPaid >= student.totalDue ? 'OK' : student.paymentStatus,
-    });
-
-    // If balance increased, log the difference as a payment
-    if (newPaid > oldPaid) {
-        addPayment({
-            student_id: student.id,
-            amount: newPaid - oldPaid,
-            method: 'Ajustement Solde',
-            reference: 'Modification administrative',
-            date: new Date().toISOString().split('T')[0]
+    try {
+        setIsSubmitting(true);
+        const oldPaid = student.paidAmount;
+        const newPaid = Number(editAmount);
+        
+        await updateStudent({
+          ...student,
+          paidAmount: newPaid,
+          paymentStatus: newPaid >= student.totalDue ? 'OK' : student.paymentStatus,
         });
-    }
 
-    showSnackbar(t('success.paymentUpdated'), 'success');
-    setEditRow(null);
+        // If balance increased, log the difference as a payment
+        if (newPaid > oldPaid) {
+            await addPayment({
+                student_id: student.id,
+                amount: newPaid - oldPaid,
+                method: 'Ajustement Solde',
+                reference: 'Modification administrative',
+                date: new Date().toISOString().split('T')[0]
+            });
+        }
+
+        showSnackbar(t('success.paymentUpdated'), 'success');
+        setEditRow(null);
+    } catch (e) {
+        showSnackbar(t('errors.general'), 'error');
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   const handleMarkOverdue = (row: any) => {
@@ -271,11 +287,14 @@ export default function AdminPayments() {
   
   const handleDelete = async (studentId: string) => {
     try {
+      setIsSubmitting(true);
       await deleteStudent(studentId);
       showSnackbar(t('success.deleted'), 'success');
       setDeleteConfirm(null);
     } catch (e) {
       showSnackbar(t('errors.general'), 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -601,7 +620,15 @@ export default function AdminPayments() {
         </DialogContent>
         <DialogActions sx={{ p: 3, gap: 1 }}>
           <Button onClick={() => setAddPaymentOpen(false)} sx={{ color: 'text.secondary', fontWeight: 700 }}>Annuler</Button>
-          <Button variant="contained" onClick={handleAddPayment} sx={{ borderRadius: '10px', px: 4, fontWeight: 800 }}>Valider</Button>
+          <Button 
+            variant="contained" 
+            onClick={handleAddPayment} 
+            disabled={isSubmitting || !formData.studentId || !formData.amount}
+            startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+            sx={{ borderRadius: '10px', px: 4, fontWeight: 800 }}
+          >
+            {isSubmitting ? 'Validation...' : 'Valider'}
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -680,7 +707,15 @@ export default function AdminPayments() {
         )}
         <DialogActions sx={{ p: 3, gap: 1 }}>
           <Button onClick={() => setEditRow(null)} sx={{ color: 'text.secondary', fontWeight: 700 }}>Annuler</Button>
-          <Button variant="contained" onClick={handleSaveEdit} sx={{ borderRadius: '10px', px: 4, fontWeight: 800 }}>Enregistrer</Button>
+          <Button 
+            variant="contained" 
+            onClick={handleSaveEdit} 
+            disabled={isSubmitting || !editAmount}
+            startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+            sx={{ borderRadius: '10px', px: 4, fontWeight: 800 }}
+          >
+            {isSubmitting ? 'Enregistrement...' : 'Enregistrer'}
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -730,9 +765,11 @@ export default function AdminPayments() {
             <Button 
               fullWidth variant="contained" color="error" 
               onClick={() => deleteConfirm && handleDelete(deleteConfirm.id)} 
+              disabled={isSubmitting}
+              startIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
               sx={{ borderRadius: '12px', py: 1, fontWeight: 800, boxShadow: 'none' }}
             >
-              Supprimer
+              {isSubmitting ? 'Suppression...' : 'Supprimer'}
             </Button>
           </DialogActions>
         </Box>
